@@ -13,7 +13,7 @@ public:
 		this->key = key;
 		this->lchild = nullptr;
 		this->rchild = nullptr;
-		N = 0;
+		N = 1;
 	}
 	T value;
 	size_t key;
@@ -136,7 +136,25 @@ public:
 		}
 	}
 	T select(size_t ranking) {
-
+		Node<T>* tmp = root;
+		//get root's ranking
+		size_t rootRank = 0;
+		while (tmp) {
+			if (tmp->lchild)
+				rootRank = tmp->lchild->N;
+			else
+				rootRank = 1;
+			if (rootRank > ranking) {
+				tmp = tmp->lchild;
+			}
+			else if (rootRank < ranking) {
+				tmp = tmp->rchild;
+				ranking = ranking - rootRank - 1;
+			}
+			else {
+				return tmp->value;
+			}
+		}
 	}
 	size_t rank(T value) {
 
