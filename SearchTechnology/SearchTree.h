@@ -10,12 +10,14 @@ class Node {
 public:
 	Node(T value,size_t key) {
 		this->value = value;
+		this->key = key;
 		this->lchild = nullptr;
 		this->rchild = nullptr;
-		this->key = key;
+		N = 0;
 	}
 	T value;
 	size_t key;
+	size_t N;	//节点计数器,记录以该节点为根节点的子树中的节点总数
 	Node<T>* lchild;
 	Node<T>* rchild;
 };
@@ -42,25 +44,26 @@ public:
 					insert(root->lchild,node);
 			}
 		*/
+		if (search(node->value) != -1) {
+			delete node;
+			return;
+		}
 		Node<T>* tmp = root;
 		while (tmp) {
+			tmp->N++;
 			if (node->value > tmp->value) {
 				if (!tmp->rchild) {
 					tmp->rchild = node;
-					break;
+					return;
 				}
 				else tmp = tmp->rchild;
 			}
 			else if (node->value < tmp->value) {
 				if (!tmp->lchild) {
 					tmp->lchild = node;
-					break;
+					return;
 				}
 				else tmp = tmp->lchild;
-			}
-			else {
-				delete node;	//delete repeated node
-				return;
 			}
 		}
 	}
@@ -90,20 +93,59 @@ public:
 		}
 		return -1;
 	}
-	void InOrderedTraversal() {
-		stack<Node<T>*> s;
-		Node<T>* cur = root;
-		while (cur || !s.empty()) {
-			while (cur) {
-				s.push(cur);
-				cur = cur->lchild;
-			}
-			if (!s.empty()) {
-				cur = s.top()->rchild;
-				cout << s.top()->value;
-				s.pop();
+	T max() {
+		Node<T>* tmp = root;
+		while (tmp->rchild)
+			tmp = tmp->rchild;
+		return tmp->value;
+	}
+	T min() {
+		Node<T>* tmp = root;
+		while (tmp->lchild)
+			tmp = tmp->lchild;
+		return tmp->value;
+	}
+	T floor(T value) {
+		Node<T>* tmp = root;
+		while (tmp) {
+			if (value > tmp->value)
+				tmp = tmp->rchild;
+			else if (value < tmp->value)
+				tmp = tmp->lchild;
+			else {
+				if (tmp->lchild)
+					return tmp->lchild->value;
+				else
+					return T();
 			}
 		}
+	}
+	T ceil(T value) {
+		Node<T>* tmp = root;
+		while (tmp) {
+			if (value > tmp->value)
+				tmp = tmp->rchild;
+			else if (value < tmp->value)
+				tmp = tmp->lchild;
+			else {
+				if (tmp->rchild)
+					return tmp->rchild->value;
+				else
+					return T();
+			}
+		}
+	}
+	T select(size_t ranking) {
+
+	}
+	size_t rank(T value) {
+
+	}
+	void sort() {
+		InOrderedTraversal();
+	}
+	Node<T>* get_root() {
+		return root;
 	}
 	~BST() {
 		//InOrderedTraversal
@@ -124,6 +166,21 @@ public:
 private:
 	Node<T>* root;
 	size_t nums;
+	void InOrderedTraversal() {
+		stack<Node<T>*> s;
+		Node<T>* cur = root;
+		while (cur || !s.empty()) {
+			while (cur) {
+				s.push(cur);
+				cur = cur->lchild;
+			}
+			if (!s.empty()) {
+				cur = s.top()->rchild;
+				cout << s.top()->value << ' ';
+				s.pop();
+			}
+		}
+	}
 };
 
 class AVL {
