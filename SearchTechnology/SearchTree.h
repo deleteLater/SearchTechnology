@@ -26,10 +26,15 @@ template <class T>
 class BST {
 public:
 	BST(T values[], size_t nums,size_t root_pos = 0) {
-		root = new tree_node<T>(values[root_pos],root_pos);/*把数组索引当key*/
+		/*
+			由于insert函数的原因,必须用到用u_root这个中间变量!!!!!
+		*/
+		tree_node<T>* u_root  = new tree_node<T>(values[root_pos], root_pos);/*把数组索引当key*/;
+		insert(u_root);
+		this->root = u_root;
 		this->nums = nums;  
-		for (size_t i = 1; i < nums; i++) {
-			insert(new tree_node<T>(values[i], i));        /*把数组中的数据都插入到树中*/
+		for (size_t i = 0; i < nums; i++) {
+			insert(new tree_node<T>(values[i], i));                          /*把数组中的数据都插入到树中*/
 		}
 	}
 	/*向树中插入value*/
@@ -165,6 +170,15 @@ public:
 			else
 				select(root->rchild, ranking - left_size - 1);
 		}
+		*/
+		/*
+			算法描述:
+				1.排名为ranking说明树中有ranking个小于它的键
+				2.对于当前根节点 r,其左子树大小为k:
+					若 k < ranking,往左子树找排名为k的节点
+					若 k > ranking,往右子树中找排名为 k - ranking - 1的节点
+					若 k = ranking,返回r->value
+				3.未找到返回空
 		*/
 		tree_node<T>* tmp{root};
 		size_t left_size{0};
