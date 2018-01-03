@@ -6,9 +6,9 @@ using std::cout;
 using std::stack;
 
 template <class T>
-class Node {
+class tree_node {
 public:
-	Node(T value,size_t key) {
+	tree_node(T value,size_t key) {
 		this->value = value;
 		this->key = key;
 		this->lchild = nullptr;
@@ -16,26 +16,26 @@ public:
 		N = 1;
 	}
 	T value;
-	size_t key;
+	size_t key;	//该节点的值(tree_node.value)在数组中对应的下标
 	size_t N;	//节点计数器,记录以该节点为根节点的子树中的节点总数
-	Node<T>* lchild;
-	Node<T>* rchild;
+	tree_node<T>* lchild;
+	tree_node<T>* rchild;
 };
 
 template <class T>
 class BST {
 public:
 	BST(T values[], size_t nums,size_t root_pos = 0) {
-		root = new Node<T>(values[root_pos],root_pos);
+		root = new tree_node<T>(values[root_pos],root_pos);
 		this->nums = nums;
 		for (size_t i = 1; i < nums; i++) {
-			insert(new Node<T>(values[i], i));
+			insert(new tree_node<T>(values[i], i));
 		}
 	}
-	void insert(Node<T>* node) {
+	void insert(tree_node<T>* node) {
 		/*
 			Recursive Edition:
-			void insert(Node<T>* root,Node<T>* node){
+			void insert(tree_node<T>* root,tree_node<T>* node){
 				if(!root)
 					root = node;
 				else if(node->value > root->value)
@@ -48,7 +48,7 @@ public:
 			delete node;
 			return;
 		}
-		Node<T>* tmp = root;
+		tree_node<T>* tmp = root;
 		while (tmp) {
 			tmp->N++;
 			if (node->value > tmp->value) {
@@ -68,12 +68,12 @@ public:
 		}
 	}
 	void insert(T value) {
-		insert(new Node<T>(value),++nums);
+		insert(new tree_node<T>(value),++nums);
 	}
 	int search(T value) {
 		/*
 			Recursive Edition:
-				size_t search(Node<T>* root,T value){
+				size_t search(tree_node<T>* root,T value){
 					if(root->value == value)
 						return root->key;
 					else if(root->value > value)
@@ -82,7 +82,7 @@ public:
 						search(root->rchild,value);
 				}
 		*/
-		Node<T>* tmp = root;
+		tree_node<T>* tmp = root;
 		while (tmp) {
 			if (value == tmp->value)
 				return tmp->key;
@@ -94,51 +94,80 @@ public:
 		return -1;
 	}
 	T max() {
-		Node<T>* tmp = root;
+		tree_node<T>* tmp = root;
 		while (tmp->rchild)
 			tmp = tmp->rchild;
 		return tmp->value;
 	}
 	T min() {
-		Node<T>* tmp = root;
+		tree_node<T>* tmp = root;
 		while (tmp->lchild)
 			tmp = tmp->lchild;
 		return tmp->value;
 	}
-	T floor(T value) {
-		Node<T>* tmp = root;
+	size_t floor(T value) {
+		/*
+			Recursive Edition:
+				size_t floor(T value){
+					tree_node<T>* ret = floor(root,value);
+					if(ret) return ret->key;
+					return root->key;
+				}
+				tree_node<T>* floor(tree_node<T>* root,T value){
+					if(root == nullptr) return T();
+					if(root->value == value)
+						return root;
+					if(root->value < value)
+						return floor(root->lchild,value);
+					tree_node<T>* n = floor(root->rchild,value);
+					if(n)	return n;
+					return root;
+				}
+		*/
+		tree_node<T>* tmp = root;
+		stack<tree_node<T>*> path_nodes;
 		while (tmp) {
+			path_nodes.push(tmp);
 			if (value > tmp->value)
 				tmp = tmp->rchild;
-			else if (value < tmp->value)
+			else if (value <= tmp->value)
 				tmp = tmp->lchild;
-			else {
-				if (tmp->lchild)
-					return tmp->lchild->value;
-				else
-					return T();
-			}
 		}
+		//traversal path_nodes,find first node->value <= value
+		//if the value is min, ret will be return
+		tree_node<T>* ret = path_nodes.top();
+		while (!path_nodes.empty()) {
+			tree_node<T>* t = path_nodes.top();
+			if (t->value < value)
+				return t->key;
+			path_nodes.pop();
+		}
+		return ret->key;
 	}
-	T ceil(T value) {
-		Node<T>* tmp = root;
+	size_t ceil(T value) {
+		//see floor
+		tree_node<T>* tmp = root;
+		stack<tree_node<T>*> path_nodes;
 		while (tmp) {
-			if (value > tmp->value)
+			path_nodes.push(tmp);
+			if (value >= tmp->value)
 				tmp = tmp->rchild;
 			else if (value < tmp->value)
 				tmp = tmp->lchild;
-			else {
-				if (tmp->rchild)
-					return tmp->rchild->value;
-				else
-					return T();
-			}
 		}
+		tree_node<T>* ret = path_nodes.top();
+		while (!path_nodes.empty()) {
+			tree_node<T>* t = path_nodes.top();
+			if (t->value > value)
+				return t->key;
+			path_nodes.pop();
+		}
+		return ret->key;
 	}
 	T select(size_t ranking) {
 		/*
 		Recursive Edition:
-			T select(Node<T>* root,size_t ranking) {
+			T select(tree_node<T>* root,size_t ranking) {
 			if (root == nullptr)
 				return T();
 			size_t left_size = 0;
@@ -152,7 +181,7 @@ public:
 				select(root->rchild, ranking - left_size - 1);
 		}
 		*/
-		Node<T>* tmp{root};
+		tree_node<T>* tmp{root};
 		size_t left_size{0};
 		while (tmp) {
 			left_size = 0;
@@ -172,7 +201,7 @@ public:
 	size_t rank(T value) {
 		/*
 		Recursive Edition:
-			size_t rank(Node<T>* root,T value){
+			size_t rank(tree_node<T>* root,T value){
 				if(root == nullptr)
 					return 0;
 				}else if(root->value == value){
@@ -187,7 +216,7 @@ public:
 					rank(root->lchild,value);
 			}		
 		*/
-		Node<T>* tmp {root};
+		tree_node<T>* tmp {root};
 		size_t ret = 0;	
 		while (tmp) {
 			if (tmp->value == value) {
@@ -210,13 +239,13 @@ public:
 	void sort() {
 		InOrderedTraversal();
 	}
-	Node<T>* get_root() {
+	tree_node<T>* get_root() {
 		return root;
 	}
 	~BST() {
 		//InOrderedTraversal
-		stack<Node<T>*> s;
-		Node<T>* cur = root;
+		stack<tree_node<T>*> s;
+		tree_node<T>* cur = root;
 		while (cur || !s.empty()) {
 			while (cur) {
 				s.push(cur);
@@ -230,11 +259,11 @@ public:
 		}
 	}
 private:
-	Node<T>* root;
+	tree_node<T>* root;
 	size_t nums;
 	void InOrderedTraversal() {
-		stack<Node<T>*> s;
-		Node<T>* cur = root;
+		stack<tree_node<T>*> s;
+		tree_node<T>* cur = root;
 		while (cur || !s.empty()) {
 			while (cur) {
 				s.push(cur);
@@ -249,6 +278,7 @@ private:
 	}
 };
 
+//TODO
 class AVL {
 public:
 private:
