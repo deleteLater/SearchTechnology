@@ -53,7 +53,7 @@ public:
 	}
 	size_t M_JSHash(T& value)
 	{
-		size_t hash = 1315423911;
+		size_t hash = 1315423911;//Only SB know why this number
 		hash ^= ((hash << 5) + value + (hash >> 2));
 		return hash % scale;
 	}
