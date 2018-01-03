@@ -216,6 +216,12 @@ public:
 					rank(root->lchild,value);
 			}		
 		*/
+		/*
+			算法要点:
+				1.左子树中的节点排名 = 该节点在左子树中的排名;
+				2.右子树中的节点排名 = 根节点的排名 + 该节点在右子树中的排名;
+				3.根节点的排名 = 左子树的大小 + 1;
+		*/
 		tree_node<T>* tmp {root};
 		size_t ret = 0;	
 		while (tmp) {
@@ -234,7 +240,7 @@ public:
 			else
 				tmp = tmp->lchild;
 		}
-		return 0;//0 stands for not-find
+		return 0;//0 stands for no such value in tree
 	}
 	/*输出排序序列(先序遍历)*/
 	void sort() {
