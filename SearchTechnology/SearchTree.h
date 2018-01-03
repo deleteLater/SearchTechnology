@@ -77,6 +77,10 @@ public:
 	/*向下取整*/
 	size_t floor(T value) {
 		/*
+			递归算法描述(摘自Algorithm4 P258):
+				如果给定的value小于二叉树根节点值,则小于等于value的值[floor(value)]一定在根节点的左子树中;
+				如果给定的value大于二叉树根节点值,那么仅在右子树中存在小于等于value的值时,则小于等于value的值[floor(value)]才会在右子树中
+				如果给定的value等于二叉树根节点值,那么根节点就是floor(value)的值
 			Recursive Edition:
 				size_t floor(T value){
 					tree_node<T>* ret = floor(root,value);
@@ -93,6 +97,15 @@ public:
 					if(n)	return n;
 					return root;
 				}
+		*/
+		/*
+			算法描述:
+				1.根据给定的value从根开始找一条路径,并将路径上的路径依次入栈
+					1.1若当前节点值小于value,往右子树查找
+					1.2若当前节点值大于等于value,往左子树查找
+					1.3重复1.1,1.2 直到当前节点为空
+				2.从栈顶开始遍历栈中节点,返回第一个节点值小于value的节点
+				3.若2未结束,返回value
 		*/
 		tree_node<T>* tmp = root;
 		stack<tree_node<T>*> path_nodes;
