@@ -10,14 +10,15 @@ public:
 		this->key = key;
 		this->next = next;
 	}
-	T value;
-	size_t key;		//H_Node.value's index in array
-	H_Node<T>* next;
+	T value;		/*节点值*/
+	size_t key;		/*value的索引*/
+	H_Node<T>* next;/*指向下一节点*/
 };
 
 template <class T>
 class Hash_Table {
 public:
+	/*建立哈希表*/
 	Hash_Table(T value[], size_t nums,size_t scale = DEFAULT) {
 		hash = new H_Node<T>*[scale] {nullptr};
 		this->scale = scale;
@@ -25,11 +26,13 @@ public:
 			insert(value[i],i);
 		}
 	}
+	/*向表中插入新节点*/
 	void insert(T value,size_t key) {
-		//hashV stands for index in array
+		/*头插法*/
 		size_t hashV = M_JSHash(value);
 		hash[hashV] = new H_Node<T>(value, key, hash[hashV]);
 	}
+	/*查找value在树中的索引*/
 	int search(T value) {
 		H_Node<T>* tmp = hash[M_JSHash(value)];
 		while (tmp) {
@@ -39,7 +42,15 @@ public:
 		}
 		return -1;
 	}
-	~Hash_Table(){
+	/*哈希函数*/
+	size_t M_JSHash(T& value)
+	{
+		size_t hash = 1315423911;//Only SB know why this number
+		hash ^= ((hash << 5) + value + (hash >> 2));
+		return hash % scale;
+	}
+	/*释放资源*/
+	~Hash_Table() {
 		for (size_t i = 0; i < scale; i++) {
 			H_Node<T>* tmp = hash[i];
 			H_Node<T>* head = tmp;
@@ -51,13 +62,7 @@ public:
 		}
 		delete[]hash;
 	}
-	size_t M_JSHash(T& value)
-	{
-		size_t hash = 1315423911;//Only SB know why this number
-		hash ^= ((hash << 5) + value + (hash >> 2));
-		return hash % scale;
-	}
 private:
-	H_Node<T>** hash;
-	size_t scale;
+	H_Node<T>** hash;/*哈希表头指针*/
+	size_t scale;    /*哈希表的大小(范围)*/
 };

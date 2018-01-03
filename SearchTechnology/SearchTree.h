@@ -15,61 +15,28 @@ public:
 		this->rchild = nullptr;
 		N = 1;
 	}
-	T value;
-	size_t key;	//该节点的值(tree_node.value)在数组中对应的下标
-	size_t N;	//节点计数器,记录以该节点为根节点的子树中的节点总数
-	tree_node<T>* lchild;
-	tree_node<T>* rchild;
+	T value;             /*该节点的值*/
+	size_t key;	         /*该节点的值(tree_node.value)在数组中对应的下标*/
+	size_t N;	         /*节点计数器,记录以该节点为根节点的子树中的节点总数*/
+	tree_node<T>* lchild;/*左孩子*/
+	tree_node<T>* rchild;/*右孩子*/
 };
 
 template <class T>
 class BST {
 public:
 	BST(T values[], size_t nums,size_t root_pos = 0) {
-		root = new tree_node<T>(values[root_pos],root_pos);
-		this->nums = nums;
+		root = new tree_node<T>(values[root_pos],root_pos);/*把数组索引当key*/
+		this->nums = nums;  
 		for (size_t i = 1; i < nums; i++) {
-			insert(new tree_node<T>(values[i], i));
+			insert(new tree_node<T>(values[i], i));        /*把数组中的数据都插入到树中*/
 		}
 	}
-	void insert(tree_node<T>* node) {
-		/*
-			Recursive Edition:
-			void insert(tree_node<T>* root,tree_node<T>* node){
-				if(!root)
-					root = node;
-				else if(node->value > root->value)
-					insert(root->rchild,node);
-				else if(node->value < root->value)
-					insert(root->lchild,node);
-			}
-		*/
-		if (search(node->value) != -1) {
-			delete node;
-			return;
-		}
-		tree_node<T>* tmp = root;
-		while (tmp) {
-			tmp->N++;
-			if (node->value > tmp->value) {
-				if (!tmp->rchild) {
-					tmp->rchild = node;
-					return;
-				}
-				else tmp = tmp->rchild;
-			}
-			else if (node->value < tmp->value) {
-				if (!tmp->lchild) {
-					tmp->lchild = node;
-					return;
-				}
-				else tmp = tmp->lchild;
-			}
-		}
-	}
+	/*向树中插入value*/
 	void insert(T value) {
 		insert(new tree_node<T>(value),++nums);
 	}
+	/*查找value对应的索引*/
 	int search(T value) {
 		/*
 			Recursive Edition:
@@ -93,18 +60,21 @@ public:
 		}
 		return -1;
 	}
+	/*最大值*/
 	T max() {
 		tree_node<T>* tmp = root;
 		while (tmp->rchild)
 			tmp = tmp->rchild;
 		return tmp->value;
 	}
+	/*最小值*/
 	T min() {
 		tree_node<T>* tmp = root;
 		while (tmp->lchild)
 			tmp = tmp->lchild;
 		return tmp->value;
 	}
+	/*向下取整*/
 	size_t floor(T value) {
 		/*
 			Recursive Edition:
@@ -144,6 +114,7 @@ public:
 		}
 		return ret->key;
 	}
+	/*向上取整*/
 	size_t ceil(T value) {
 		//see floor
 		tree_node<T>* tmp = root;
@@ -164,6 +135,7 @@ public:
 		}
 		return ret->key;
 	}
+	/*查找树中排名为ranking的值*/
 	T select(size_t ranking) {
 		/*
 		Recursive Edition:
@@ -198,6 +170,7 @@ public:
 		}
 		return T();
 	}
+	/*返回值value在树中的排名*/
 	size_t rank(T value) {
 		/*
 		Recursive Edition:
@@ -236,12 +209,27 @@ public:
 		}
 		return 0;//0 stands for not-find
 	}
+	/*输出排序序列(先序遍历)*/
 	void sort() {
-		InOrderedTraversal();
+		stack<tree_node<T>*> s;
+		tree_node<T>* cur = root;
+		while (cur || !s.empty()) {
+			while (cur) {
+				s.push(cur);
+				cur = cur->lchild;
+			}
+			if (!s.empty()) {
+				cur = s.top()->rchild;
+				cout << s.top()->value << ' ';
+				s.pop();
+			}
+		}
 	}
+	/*返回树的根节点*/
 	tree_node<T>* get_root() {
 		return root;
 	}
+	/*释放资源*/
 	~BST() {
 		//InOrderedTraversal
 		stack<tree_node<T>*> s;
@@ -259,20 +247,44 @@ public:
 		}
 	}
 private:
+	/*根*/
 	tree_node<T>* root;
+	/*树的大小*/
 	size_t nums;
-	void InOrderedTraversal() {
-		stack<tree_node<T>*> s;
-		tree_node<T>* cur = root;
-		while (cur || !s.empty()) {
-			while (cur) {
-				s.push(cur);
-				cur = cur->lchild;
+private:
+	/*插入新节点*/
+	void insert(tree_node<T>* node) {
+		/*
+		Recursive Edition:
+		void insert(tree_node<T>* root,tree_node<T>* node){
+		if(!root)
+		root = node;
+		else if(node->value > root->value)
+		insert(root->rchild,node);
+		else if(node->value < root->value)
+		insert(root->lchild,node);
+		}
+		*/
+		if (search(node->value) != -1) {
+			delete node;
+			return;
+		}
+		tree_node<T>* tmp = root;
+		while (tmp) {
+			tmp->N++;
+			if (node->value > tmp->value) {
+				if (!tmp->rchild) {
+					tmp->rchild = node;
+					return;
+				}
+				else tmp = tmp->rchild;
 			}
-			if (!s.empty()) {
-				cur = s.top()->rchild;
-				cout << s.top()->value << ' ';
-				s.pop();
+			else if (node->value < tmp->value) {
+				if (!tmp->lchild) {
+					tmp->lchild = node;
+					return;
+				}
+				else tmp = tmp->lchild;
 			}
 		}
 	}
